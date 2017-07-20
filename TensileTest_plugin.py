@@ -1,8 +1,8 @@
 from abaqusGui import getAFXApp
 toolset = getAFXApp().getAFXMainWindow().getPluginToolset()
 toolset.registerKernelMenuButton(buttonText='TensileTestGenerator',
-                                 moduleName='Tensile',
+                                 moduleName='TensileTest',
                                  functionName='TensileFunction()',
-                                 author='Mateusz Pączek',
+                                 author='Mateusz Paczek',
                                  description='Abaqus Tensile Test Generator')
 
