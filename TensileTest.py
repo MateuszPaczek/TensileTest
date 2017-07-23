@@ -34,6 +34,8 @@ def TensileFunction():
             self.gageWidth2D = StringVar()
             self.radius2D = StringVar()
             self.thickness2D = StringVar()
+            self.displacement2D = StringVar()
+            self.displacement2D.set("10.0")
 
             self.gripLength2DLabel = ttk.Label(self.upperFrame2D, text="Grip length")
             self.gripLength2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
@@ -59,6 +61,10 @@ def TensileFunction():
             self.thickness2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
                                               textvariable=self.thickness2D)
 
+            self.displacement2DLabel = ttk.Label(self.upperFrame2D, text="Displacement")
+            self.displacement2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
+                                              textvariable=self.displacement2D)
+
             self.gripLength2DLabel.grid(row=0, column=0)
             self.gripLength2DEntry.grid(row=0, column=1)
             self.gripWidth2DLabel.grid(row=1, column=0)
@@ -71,6 +77,8 @@ def TensileFunction():
             self.radius2DEntry.grid(row=5, column=1)
             self.thickness2DLabel.grid(row=6, column=0)
             self.thickness2DEntry.grid(row=6, column=1)
+            self.displacement2DLabel.grid(row=0, column=3)
+            self.displacement2DEntry.grid(row=0, column=4)
 
             self.buttonDone = Button(self.upperFrame2D, text="Go", command=self.done)
             self.buttonExample = Button(self.upperFrame2D, text="Create example", command=self.example)
@@ -97,9 +105,16 @@ def TensileFunction():
             self.abaqus.createSpecimen(float(self.gripLength2D.get()), float(self.gripWidth2D.get()),
                                        float(self.gageLength2D.get()), float(self.gageWidth2D.get()),
                                        float(self.radius2D.get()), float(self.thickness2D.get()))
+            self.abaqus.assemblyStep(float(self.displacement2D.get()))
+            self.abaqus.mesh()
+            self.abaqus.job()
 
         def example(self):
             self.abaqus.createSpecimen(40.0, 20.0, 75.0, 10.0, 12.5, 10)
+            self.abaqus.assemblyStep(10.0)
+            self.abaqus.mesh()
+            self.abaqus.job()
+
     app = GuiApplication()
 
 
