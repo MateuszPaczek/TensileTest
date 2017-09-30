@@ -51,13 +51,12 @@ class AbacusCommands():
         s.delete(objectList=(g[8],))
         s.delete(objectList=(g[10],))
 
-        p = mdb.models['Model-1'].Part(name='Specimen', dimensionality=TWO_D_PLANAR,
-                                       type=DEFORMABLE_BODY)
+
         p = mdb.models['Model-1'].parts['Specimen']
         p.BaseShell(sketch=s)
         s.unsetPrimaryObject()
         p = mdb.models['Model-1'].parts['Specimen']
-        session.viewports['Viewport: 1'].setValues(displayedObject=p)
+
         del mdb.models['Model-1'].sketches['__profile__']
 
         # RP
@@ -125,20 +124,19 @@ class AbacusCommands():
         e1 = a.instances['Specimen-1'].edges
         edges1 = e1.getSequenceFromMask(mask=('[#4000 ]',), )
         region = a.Set(edges=edges1, name='Set-1')
-        mdb.models['Model-1'].DisplacementBC(name='BC-1', createStepName='Step-1',
+        mdb.models['Model-1'].DisplacementBC(name='bottom', createStepName='Step-1',
                                              region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
                                              distributionType=UNIFORM, fieldName='', localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         e1 = a.instances['Specimen-1'].edges
         edges1 = e1.getSequenceFromMask(mask=('[#4 ]',), )
         region = a.Set(edges=edges1, name='Set-2')
-        mdb.models['Model-1'].DisplacementBC(name='BC-2', createStepName='Step-1',
+        mdb.models['Model-1'].DisplacementBC(name='top', createStepName='Step-1',
                                              region=region, u1=displacement, u2=0.0, ur3=0.0, amplitude=UNSET,
                                              fixed=OFF,
                                              distributionType=UNIFORM, fieldName='', localCsys=None)
 
     def mesh2D(self):
-        p = mdb.models['Model-1'].parts['Specimen']
 
         p = mdb.models['Model-1'].parts['Specimen']
         p.seedPart(size=10.0, deviationFactor=0.1, minSizeFactor=0.1)
@@ -196,12 +194,10 @@ class AbacusCommands():
         s.RadialDimension(curve=g[10], textPoint=(17.5, 105.0), radius=radius)
         s.RadialDimension(curve=g[9], textPoint=(17.5, 30.0), radius=radius)
 
-        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=AXISYMMETRIC,
-                                       type=DEFORMABLE_BODY)
         p = mdb.models['Model-1'].parts['Part-1']
         p.BaseShell(sketch=s)
         s.unsetPrimaryObject()
-        p = mdb.models['Model-1'].parts['Part-1']
+
         del mdb.models['Model-1'].sketches['__profile__']
 
         # material dodac inne mateialy
@@ -292,16 +288,16 @@ class AbacusCommands():
         s1.delete(objectList=(g[6], g[8], g[10], g[4]))
 
         s1.ArcByStartEndTangent(point1=(gripLength + 10.0, gripWidth - (gripWidth - gageWidth) / 2),
-                               point2=(gripLength, gripWidth), vector=(-150.0, 10.0))
+                                point2=(gripLength, gripWidth), vector=(-150.0, 10.0))
 
         s1.ArcByStartEndTangent(point1=(gripLength + 10.0, (gripWidth - gageWidth) / 2),
-                               point2=(gripLength, 0.0), vector=(-150, 10.0))
+                                point2=(gripLength, 0.0), vector=(-150, 10.0))
 
         s1.ArcByStartEndTangent(point1=(gripLength + 10.0 + gageLength, gripWidth - (gripWidth - gageWidth) / 2),
-                               point2=(gripLength + 10.0 + gageLength + 10, gripWidth), vector=(150, -1.0))
+                                point2=(gripLength + 10.0 + gageLength + 10, gripWidth), vector=(150, -1.0))
 
         s1.ArcByStartEndTangent(point1=(gripLength + 10.0 + gageLength, (gripWidth - gageWidth) / 2),
-                               point2=(gripLength + 10.0 + gageLength + 10, 0.0), vector=(150, 10.0))
+                                point2=(gripLength + 10.0 + gageLength + 10, 0.0), vector=(150, 10.0))
 
         s1.RadialDimension(curve=g[12], textPoint=(50.0, 27.5), radius=radius)
         s1.RadialDimension(curve=g[13], textPoint=(50.0, -7.5), radius=radius)
@@ -316,78 +312,182 @@ class AbacusCommands():
         p1 = mdb.models['Model-1'].parts['Part-1']
         del mdb.models['Model-1'].sketches['__profile__']
 
+        # material dodac inne mateialy
+        m = MaterialManager.MaterialManager()
+        m.addExampleMaterial()
+
+        # surfaces
+        p1 = mdb.models['Model-1'].parts['Part-1']
+        s = p1.faces
+        side1Faces = s.getSequenceFromMask(mask=('[#10 ]',), )
+        p1.Surface(side1Faces=side1Faces, name='bottom')
+
+        p1 = mdb.models['Model-1'].parts['Part-1']
+        s = p1.faces
+        side1Faces = s.getSequenceFromMask(mask=('[#400 ]',), )
+        p1.Surface(side1Faces=side1Faces, name='top')
+
+        # section
+        mdb.models['Model-1'].HomogeneousSolidSection(name='Section-1',
+                                                      material='AISI 1005 Steel', thickness=None)
+        p1 = mdb.models['Model-1'].parts['Part-1']
+        c = p1.cells
+        cells = c.getSequenceFromMask(mask=('[#1 ]',), )
+        region = p1.Set(cells=cells, name='Set-1')
+        p1 = mdb.models['Model-1'].parts['Part-1']
+        p1.SectionAssignment(region=region, sectionName='Section-1', offset=0.0,
+                             offsetType=MIDDLE_SURFACE, offsetField='',
+                             thicknessAssignment=FROM_SECTION)
+
     def assemblyStep3D(self, displacement):
-        pass
+        a = mdb.models['Model-1'].rootAssembly
+        a.DatumCsysByDefault(CARTESIAN)
+        p = mdb.models['Model-1'].parts['Part-1']
+        a.Instance(name='Part-1-1', part=p, dependent=ON)
+
+        mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial')
+
+        a = mdb.models['Model-1'].rootAssembly
+        f1 = a.instances['Part-1-1'].faces
+        faces1 = f1.getSequenceFromMask(mask=('[#10 ]',), )
+        region = a.Set(faces=faces1, name='Set-1')
+        mdb.models['Model-1'].DisplacementBC(name='bottom', createStepName='Step-1',
+                                             region=region, u1=0.0, u2=0.0, u3=0.0, ur1=0.0, ur2=0.0, ur3=0.0,
+                                             amplitude=UNSET, fixed=OFF, distributionType=UNIFORM, fieldName='',
+                                             localCsys=None)
+
+        a = mdb.models['Model-1'].rootAssembly
+        f1 = a.instances['Part-1-1'].faces
+        faces1 = f1.getSequenceFromMask(mask=('[#400 ]',), )
+        region = a.Set(faces=faces1, name='Set-2')
+        mdb.models['Model-1'].DisplacementBC(name='top', createStepName='Step-1',
+                                             region=region, u1=-displacement, u2=0, u3=0.0, ur1=0.0, ur2=0.0, ur3=0.0,
+                                             amplitude=UNSET, fixed=OFF, distributionType=UNIFORM, fieldName='',
+                                             localCsys=None)
 
     def mesh3D(self):
-        pass
+        p1 = mdb.models['Model-1'].parts['Part-1']
+        p1.seedPart(size=7.5, deviationFactor=0.1, minSizeFactor=0.1)
+        p1 = mdb.models['Model-1'].parts['Part-1']
+        p1.generateMesh()
+        a = mdb.models['Model-1'].rootAssembly
+        a.regenerate()
 
     def job3D(self):
-        pass
+        mdb.Job(name='Job-1', model='Model-1', description='', type=ANALYSIS,
+                atTime=None, waitMinutes=0, waitHours=0, queue=None, memory=90,
+                memoryUnits=PERCENTAGE, getMemoryFromAnalysis=True,
+                explicitPrecision=SINGLE, nodalOutputPrecision=SINGLE, echoPrint=OFF,
+                modelPrint=OFF, contactPrint=OFF, historyPrint=OFF, userSubroutine='',
+                scratch='', resultsFormat=ODB)
 
-    def createSpecimenCilinder(self, gripLength, gripWidth, gageLength, gageWidth, radius):
-        s = mdb.models['Model-1'].ConstrainedSketch(name='__sweep__', sheetSize=400.0)
-        g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
-        s.setPrimaryObject(option=STANDALONE)
-
-        s.CircleByCenterPerimeter(center=(0.0, 0.0), point1=(-10.0, 0.0))
-        s.unsetPrimaryObject()
-        s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
-                                                     sheetSize=400.0,
-                                                     transform=(-1.0, -1.22464679914735e-16, 0.0, 0.0, 0.0,
-                                                                1.0, -1.22464679914735e-16, 1.0, 0.0, -10.0,
-                                                                1.22464679914735e-15,
-                                                                0.0))
-        g1, v1, d1, c1 = s1.geometry, s1.vertices, s1.dimensions, s1.constraints
-        s1.setPrimaryObject(option=SUPERIMPOSE)
-        s1.ConstructionLine(point1=(-200.0, 0.0), point2=(200.0, 0.0))
-        s1.ConstructionLine(point1=(0.0, -200.0), point2=(0.0, 200.0))
-
-        s1.Line(point1=(20.0, 0.0), point2=(20.0, 37.5))
-        s1.VerticalConstraint(entity=g1[4], addUndoState=False)
-        s1.PerpendicularConstraint(entity1=g1[2], entity2=g1[4], addUndoState=False)
-        s1.CoincidentConstraint(entity1=v1[0], entity2=g1[2], addUndoState=False)
-
-        s1.Line(point1=(25.0, 37.5), point2=(25.0, 0.0))
-        s1.VerticalConstraint(entity=g1[5], addUndoState=False)
-        s1.CoincidentConstraint(entity1=v1[3], entity2=g1[2], addUndoState=False)
-
-        s1.Line(point1=(20.0, 37.5), point2=(20.0, 47.5))
-        s1.VerticalConstraint(entity=g1[6], addUndoState=False)
-        s1.ParallelConstraint(entity1=g1[4], entity2=g1[6], addUndoState=False)
-
-        s1.Line(point1=(20.0, 47.5), point2=(20.0, 87.5))
-        s1.VerticalConstraint(entity=g1[7], addUndoState=False)
-        s1.ParallelConstraint(entity1=g1[6], entity2=g1[7], addUndoState=False)
-
-
-        s1.Line(point1=(20.0, 87.5), point2=(30.0, 87.5))
-        s1.HorizontalConstraint(entity=g1[8], addUndoState=False)
-        s1.PerpendicularConstraint(entity1=g1[7], entity2=g1[8], addUndoState=False)
-        s1.Line(point1=(30.0, 87.5), point2=(30.0, 47.5))
-        s1.VerticalConstraint(entity=g1[9], addUndoState=False)
-        s1.PerpendicularConstraint(entity1=g1[8], entity2=g1[9], addUndoState=False)
-        s1.ArcByStartEndTangent(point1=(25.0, 37.5), point2=(30.0, 47.5), entity=g1[5])
-
-        s1.Line(point1=(25.0, 0.0), point2=(20.0, 0.0))
-        s1.HorizontalConstraint(entity=g1[11], addUndoState=False)
-        s1.PerpendicularConstraint(entity1=g1[5], entity2=g1[11], addUndoState=False)
-
-        s1.copyMirror(mirrorLine=g1[2], objectList=(g1[2], g1[4], g1[5], g1[6], g1[7],
-                                                    g1[8], g1[9], g1[10], g1[11]))
-
-        s1.delete(objectList=(g1[2], g1[11], g1[12], g1[20]))
-
-        s1.move(vector=(-30.0, 0.0), objectList=(g1[4], g1[5], g1[6], g1[7], g1[8],
-                                                 g1[9], g1[10], g1[13], g1[14], g1[15], g1[16], g1[17], g1[18], g1[19]))
-
-        p = mdb.models['Model-1'].Part(name='Specimen', dimensionality=THREE_D,
-                                       type=DEFORMABLE_BODY)
-        p = mdb.models['Model-1'].parts['Specimen']
-        p.BaseSolidSweep(sketch=s1, path=s)
+    def createSpecimenCylinder(self, gripLength, gripWidth, gageLength, gageWidth, radius):
+        s1 = mdb.models['Model-1'].ConstrainedSketch(name='__sweep__', sheetSize=200.0)
+        g, v, d, c = s1.geometry, s1.vertices, s1.dimensions, s1.constraints
+        s1.setPrimaryObject(option=STANDALONE)
+        s1.CircleByCenterPerimeter(center=(0.0, 0.0), point1=(-10.0, 0.0))
         s1.unsetPrimaryObject()
-        p = mdb.models['Model-1'].parts['Specimen']
+        s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
+                                                    sheetSize=200.0,
+                                                    transform=(-1.0, -1.22464679914735e-16, 0.0, 0.0, 0.0,
+                                                               1.0, -1.22464679914735e-16, 1.0, 0.0, -10.0,
+                                                               1.22464679914735e-15,
+                                                               0.0))
+        g1, v1, d1, c1 = s.geometry, s.vertices, s.dimensions, s.constraints
+        s.setPrimaryObject(option=SUPERIMPOSE)
+        s.ConstructionLine(point1=(-100.0, 0.0), point2=(100.0, 0.0))
+        s.ConstructionLine(point1=(0.0, -100.0), point2=(0.0, 100.0))
+
+        s.Line(point1=(10.0, 0.0), point2=(10.0, gageLength / 2 + 10 + gripLength))
+        s.VerticalConstraint(entity=g1[4], addUndoState=False)
+        s.PerpendicularConstraint(entity1=g1[2], entity2=g1[4], addUndoState=False)
+        s.CoincidentConstraint(entity1=v1[0], entity2=g1[2], addUndoState=False)
+
+        s.Line(point1=(10.0, gageLength / 2 + 10 + gripLength),
+               point2=(10 + gripWidth / 2, gageLength / 2 + 10 + gripLength))
+        s.HorizontalConstraint(entity=g1[5], addUndoState=False)
+        s.PerpendicularConstraint(entity1=g1[4], entity2=g1[5], addUndoState=False)
+        s.Line(point1=(10 + gripWidth / 2, gageLength / 2 + 10 + gripLength),
+               point2=(10 + gripWidth / 2, gageLength / 2 + 10))
+        s.VerticalConstraint(entity=g1[6], addUndoState=False)
+        s.PerpendicularConstraint(entity1=g1[5], entity2=g1[6], addUndoState=False)
+
+        s.Line(point1=(10.0, 0.0), point2=(10 + gageWidth / 2, 0.0))
+        s.HorizontalConstraint(entity=g1[7], addUndoState=False)
+        s.PerpendicularConstraint(entity1=g1[4], entity2=g1[7], addUndoState=False)
+
+        s.Line(point1=(10 + gageWidth / 2, 0.0), point2=(10 + gageWidth / 2, gageLength / 2))
+        s.VerticalConstraint(entity=g1[8], addUndoState=False)
+        s.PerpendicularConstraint(entity1=g1[7], entity2=g1[8], addUndoState=False)
+        s.ArcByStartEndTangent(point1=(10 + gageWidth / 2, gageLength / 2),
+                               point2=(10 + gripWidth / 2, gageLength / 2 + 10), entity=g1[8])
+
+        s.copyMirror(mirrorLine=g1[2], objectList=(g1[2], g1[4], g1[5], g1[6], g1[7],
+                                                   g1[8], g1[9]))
+
+        s.move(vector=(-20.0, 0.0), objectList=(g1[2], g1[4], g1[5], g1[6], g1[7],
+                                                g1[8], g1[9], g1[10], g1[11], g1[12], g1[13], g1[14], g1[15], g1[16]))
+
+        s.delete(objectList=(g1[2], g1[7], g1[10], g1[14], c1[17], c1[42]))
+
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=THREE_D,
+                                       type=DEFORMABLE_BODY)
+        p = mdb.models['Model-1'].parts['Part-1']
+        p.BaseSolidSweep(sketch=s, path=s1)
+        s.unsetPrimaryObject()
+        p = mdb.models['Model-1'].parts['Part-1']
 
         del mdb.models['Model-1'].sketches['__profile__']
         del mdb.models['Model-1'].sketches['__sweep__']
 
+        # material dodac inne mateialy
+        m = MaterialManager.MaterialManager()
+        m.addExampleMaterial()
+
+        mdb.models['Model-1'].HomogeneousSolidSection(name='Section-1',
+                                                      material='AISI 1005 Steel', thickness=None)
+        p = mdb.models['Model-1'].parts['Part-1']
+        c = p.cells
+        cells = c.getSequenceFromMask(mask=('[#1 ]',), )
+        region = p.Set(cells=cells, name='Set-1')
+        p = mdb.models['Model-1'].parts['Part-1']
+        p.SectionAssignment(region=region, sectionName='Section-1', offset=0.0,
+                            offsetType=MIDDLE_SURFACE, offsetField='',
+                            thicknessAssignment=FROM_SECTION)
+
+    def assemblyStepCylinder(self, displacement):
+        a = mdb.models['Model-1'].rootAssembly
+        a.DatumCsysByDefault(CARTESIAN)
+        p = mdb.models['Model-1'].parts['Part-1']
+        a.Instance(name='Part-1-1', part=p, dependent=ON)
+
+        mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial')
+
+        a = mdb.models['Model-1'].rootAssembly
+        f1 = a.instances['Part-1-1'].faces
+        faces1 = f1.getSequenceFromMask(mask=('[#40 ]',), )
+        region = a.Set(faces=faces1, name='Set-1')
+        mdb.models['Model-1'].DisplacementBC(name='bottom', createStepName='Step-1',
+                                             region=region, u1=0.0, u2=0.0, u3=0.0, ur1=0.0, ur2=0.0, ur3=0.0,
+                                             amplitude=UNSET, fixed=OFF, distributionType=UNIFORM, fieldName='',
+                                             localCsys=None)
+
+        a = mdb.models['Model-1'].rootAssembly
+        f1 = a.instances['Part-1-1'].faces
+        faces1 = f1.getSequenceFromMask(mask=('[#1 ]',), )
+        region = a.Set(faces=faces1, name='Set-2')
+        mdb.models['Model-1'].DisplacementBC(name='top', createStepName='Step-1',
+                                             region=region, u1=0, u2=0.0, u3=-displacement, ur1=0.0, ur2=0.0, ur3=0.0,
+                                             amplitude=UNSET, fixed=OFF, distributionType=UNIFORM, fieldName='',
+                                             localCsys=None)
+
+    def meshCylinder(self):
+        pass
+
+    def jobCylinder(self):
+        mdb.Job(name='Job-1', model='Model-1', description='', type=ANALYSIS,
+                atTime=None, waitMinutes=0, waitHours=0, queue=None, memory=90,
+                memoryUnits=PERCENTAGE, getMemoryFromAnalysis=True,
+                explicitPrecision=SINGLE, nodalOutputPrecision=SINGLE, echoPrint=OFF,
+                modelPrint=OFF, contactPrint=OFF, historyPrint=OFF, userSubroutine='',
+                scratch='', resultsFormat=ODB)

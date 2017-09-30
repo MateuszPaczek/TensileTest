@@ -13,9 +13,11 @@ def TensileFunction():
             self.tab2D = ttk.Frame(self.notebook)
             self.tab3D = ttk.Frame(self.notebook)
             self.tabAxis = ttk.Frame(self.notebook)
+            self.tabCylinder = ttk.Frame(self.notebook)
             self.notebook.add(self.tab2D, text="2D model")
             self.notebook.add(self.tabAxis, text="Axisymmetric")
             self.notebook.add(self.tab3D, text="3D model")
+            self.notebook.add(self.tabCylinder, text="Cylinder")
 
             self.notebook.pack()
 
@@ -164,31 +166,31 @@ def TensileFunction():
 
             self.gripLength3DLabel = ttk.Label(self.upperFrame3D, text="Grip length")
             self.gripLength3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
-                                                 textvariable=self.gripLength3D)
+                                               textvariable=self.gripLength3D)
 
             self.gripWidth3DLabel = ttk.Label(self.upperFrame3D, text="Grip width")
             self.gripWidth3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
-                                                textvariable=self.gripWidth3D)
+                                              textvariable=self.gripWidth3D)
 
             self.gageLength3DLabel = ttk.Label(self.upperFrame3D, text="Gage length")
             self.gageLength3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
-                                                 textvariable=self.gageLength3D)
+                                               textvariable=self.gageLength3D)
 
             self.gageWidth3DLabel = ttk.Label(self.upperFrame3D, text="Gage width")
             self.gageWidth3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
-                                                textvariable=self.gageWidth3D)
+                                              textvariable=self.gageWidth3D)
 
             self.radius3DLabel = ttk.Label(self.upperFrame3D, text="Radius")
             self.radius3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
-                                             textvariable=self.radius3D)
+                                           textvariable=self.radius3D)
 
             self.depth3DLabel = ttk.Label(self.upperFrame3D, text="Depth")
             self.depth3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
-                                             textvariable=self.depth3D)
+                                          textvariable=self.depth3D)
 
             self.displacement3DLabel = ttk.Label(self.upperFrame3D, text="Displacement")
             self.displacement3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
-                                                   textvariable=self.displacement3D)
+                                                 textvariable=self.displacement3D)
 
             self.gripLength3DLabel.grid(row=0, column=0)
             self.gripLength3DEntry.grid(row=0, column=1)
@@ -208,6 +210,64 @@ def TensileFunction():
 
             self.buttonDone = Button(self.upperFrame3D, text="Go", command=self.done3D)
             self.buttonExample = Button(self.upperFrame3D, text="Create example", command=self.example3D)
+            self.buttonDone.grid()
+            self.buttonExample.grid()
+
+            # cylinder
+            self.upperFrameCylinder = ttk.Frame(self.tabCylinder)
+            self.middleFrameCylinder = ttk.Frame(self.tabCylinder)
+
+            self.upperFrameCylinder.grid(row=0, column=0)
+            self.middleFrameCylinder.grid(row=1, column=0)
+
+            self.gripLengthCylinder = StringVar()
+            self.gripWidthCylinder = StringVar()
+            self.gageLengthCylinder = StringVar()
+            self.gageWidthCylinder = StringVar()
+            self.radiusCylinder = StringVar()
+            self.displacementCylinder = StringVar()
+            self.displacementCylinder.set("10.0")
+
+            self.gripLengthCylinderLabel = ttk.Label(self.upperFrameCylinder, text="Grip length")
+            self.gripLengthCylinderEntry = ttk.Entry(self.upperFrameCylinder, validate='key', validatecommand=self.vfaz,
+                                                     textvariable=self.gripLengthCylinder)
+
+            self.gripWidthCylinderLabel = ttk.Label(self.upperFrameCylinder, text="Grip width")
+            self.gripWidthCylinderEntry = ttk.Entry(self.upperFrameCylinder, validate='key', validatecommand=self.vfaz,
+                                                    textvariable=self.gripWidthCylinder)
+
+            self.gageLengthCylinderLabel = ttk.Label(self.upperFrameCylinder, text="Gage length")
+            self.gageLengthCylinderEntry = ttk.Entry(self.upperFrameCylinder, validate='key', validatecommand=self.vfaz,
+                                                     textvariable=self.gageLengthCylinder)
+
+            self.gageWidthCylinderLabel = ttk.Label(self.upperFrameCylinder, text="Gage width")
+            self.gageWidthCylinderEntry = ttk.Entry(self.upperFrameCylinder, validate='key', validatecommand=self.vfaz,
+                                                    textvariable=self.gageWidthCylinder)
+
+            self.radiusCylinderLabel = ttk.Label(self.upperFrameCylinder, text="Radius")
+            self.radiusCylinderEntry = ttk.Entry(self.upperFrameCylinder, validate='key', validatecommand=self.vfaz,
+                                                 textvariable=self.radiusCylinder)
+
+            self.displacementCylinderLabel = ttk.Label(self.upperFrameCylinder, text="Displacement")
+            self.displacementCylinderEntry = ttk.Entry(self.upperFrameCylinder, validate='key',
+                                                       validatecommand=self.vfaz,
+                                                       textvariable=self.displacementCylinder)
+
+            self.gripLengthCylinderLabel.grid(row=0, column=0)
+            self.gripLengthCylinderEntry.grid(row=0, column=1)
+            self.gripWidthCylinderLabel.grid(row=1, column=0)
+            self.gripWidthCylinderEntry.grid(row=1, column=1)
+            self.gageLengthCylinderLabel.grid(row=3, column=0)
+            self.gageLengthCylinderEntry.grid(row=3, column=1)
+            self.gageWidthCylinderLabel.grid(row=4, column=0)
+            self.gageWidthCylinderEntry.grid(row=4, column=1)
+            self.radiusCylinderLabel.grid(row=5, column=0)
+            self.radiusCylinderEntry.grid(row=5, column=1)
+            self.displacementCylinderLabel.grid(row=0, column=3)
+            self.displacementCylinderEntry.grid(row=0, column=4)
+
+            self.buttonDone = Button(self.upperFrameCylinder, text="Go", command=self.doneCylinder)
+            self.buttonExample = Button(self.upperFrameCylinder, text="Create example", command=self.exampleCylinder)
             self.buttonDone.grid()
             self.buttonExample.grid()
             mainloop()
@@ -244,12 +304,22 @@ def TensileFunction():
             self.abaqus.jobAxis()
 
         def done3D(self):
-            self.abaqus.createSpecimen2D(float(self.gripLength3D.get()), float(self.gripWidth3D.get()),
+            self.abaqus.createSpecimen3D(float(self.gripLength3D.get()), float(self.gripWidth3D.get()),
                                          float(self.gageLength3D.get()), float(self.gageWidth3D.get()),
                                          float(self.radius3D.get()), float(self.depth3D.get()))
-            self.abaqus.assemblyStep2D(float(self.displacement3D.get()))
+            self.abaqus.assemblyStep3D(float(self.displacement3D.get()))
             self.abaqus.mesh3D()
             self.abaqus.job3D()
+
+        def doneCylinder(self):
+            self.abaqus.createSpecimenCylinder(float(self.gripLengthCylinder.get()),
+                                               float(self.gripWidthCylinder.get()),
+                                               float(self.gageLengthCylinder.get()),
+                                               float(self.gageWidthCylinder.get()),
+                                               float(self.radiusCylinder.get()))
+            self.abaqus.assemblyStepCylinder(float(self.displacementCylinder.get()))
+            self.abaqus.meshCylinder()
+            self.abaqus.jobCylinder()
 
         def example2D(self):
             self.abaqus.createSpecimen2D(40.0, 20.0, 75.0, 10.0, 12.5, 10)
@@ -269,6 +339,11 @@ def TensileFunction():
             self.abaqus.mesh3D()
             self.abaqus.job3D()
 
+        def exampleCylinder(self):
+            self.abaqus.createSpecimenCylinder(40.0, 20.0, 75.0, 10.0, 12.5)
+            self.abaqus.assemblyStepCylinder(10.0)
+            self.abaqus.meshCylinder()
+            self.abaqus.jobCylinder()
 
     app = GuiApplication()
 
