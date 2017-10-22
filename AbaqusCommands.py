@@ -1,15 +1,29 @@
 # coding=utf-8
 from abaqus import *
 from abaqusConstants import *
+
 import MaterialManager
 
 
-class AbacusCommands():
-    def __init__(self):
-        self.indentationDepth = 0.4
+######################################
 
-    def createSpecimen2D(self, gripLength, gripWidth, gageLength, gageWidth, radius, thickness):
+# odległość przy łuku
+# mesh 3d
+#
+
+# długosc próbki
+# dane z pliku
+# dr Paćko
+# normy literatura
+#
+
+######################################
+
+class AbacusCommands:
+    def createSpecimen2D(self, overallLength, gripLength, gripWidth, gageLength, gageWidth, radius, thickness):
         # print(gripLength, gripWidth, gageLength, gageWidth, radius)
+
+        space = (overallLength - 2 * gripLength - gageLength)/2
 
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=400.0)
@@ -17,27 +31,27 @@ class AbacusCommands():
         s.setPrimaryObject(option=STANDALONE)
 
         s.rectangle(point1=(0.0, gripWidth), point2=(gripLength, 0.0))  # left grip
-        s.rectangle(point1=(gripLength + 10.0, gripWidth - (gripWidth - gageWidth) / 2),
-                    point2=(gripLength + 10.0 + gageLength, (gripWidth - gageWidth) / 2))  # gage
-        s.rectangle(point1=(gripLength + 10.0 + gageLength + 10, gripWidth),
-                    point2=(gripLength + 10.0 + gageLength + 10 + gripLength, 0.0))
+        s.rectangle(point1=(gripLength + space, gripWidth - (gripWidth - gageWidth) / 2),
+                    point2=(gripLength + space + gageLength, (gripWidth - gageWidth) / 2))  # gage
+        s.rectangle(point1=(gripLength + space + gageLength + space, gripWidth),
+                    point2=(gripLength + space + gageLength + space + gripLength, 0.0))
 
         #  s.ArcByStartEndTangent(point1=(50.0, 15.0), point2=(40.0, 20.0), vector=(-0.5, -0.5))
         #  s.ArcByStartEndTangent(point1=(50.0, 5.0), point2=(40.0, 0.0), vector=(-0.5, 0.5))
         #  s.ArcByStartEndTangent(point1=(125.0, 5.0), point2=(135.0, 0.0), vector=(150, -1.0))
         #  s.ArcByStartEndTangent(point1=(125.0, 15.0), point2=(135.0, 20.0), vector=(150, 10.0))
 
-        s.ArcByStartEndTangent(point1=(gripLength + 10.0, gripWidth - (gripWidth - gageWidth) / 2),
-                               point2=(gripLength, gripWidth), vector=(-150.0, 10.0))
+        s.ArcByStartEndTangent(point1=(gripLength + space, gripWidth - (gripWidth - gageWidth) / 2),
+                               point2=(gripLength, gripWidth), vector=(-150.0, space))
 
-        s.ArcByStartEndTangent(point1=(gripLength + 10.0, (gripWidth - gageWidth) / 2),
+        s.ArcByStartEndTangent(point1=(gripLength + space, (gripWidth - gageWidth) / 2),
                                point2=(gripLength, 0.0), vector=(-150, 10.0))
 
-        s.ArcByStartEndTangent(point1=(gripLength + 10.0 + gageLength, gripWidth - (gripWidth - gageWidth) / 2),
-                               point2=(gripLength + 10.0 + gageLength + 10, gripWidth), vector=(150, -1.0))
+        s.ArcByStartEndTangent(point1=(gripLength + space + gageLength, gripWidth - (gripWidth - gageWidth) / 2),
+                               point2=(gripLength + space + gageLength + space, gripWidth), vector=(150, -1.0))
 
-        s.ArcByStartEndTangent(point1=(gripLength + 10.0 + gageLength, (gripWidth - gageWidth) / 2),
-                               point2=(gripLength + 10.0 + gageLength + 10, 0.0), vector=(150, 10.0))
+        s.ArcByStartEndTangent(point1=(gripLength + space + gageLength, (gripWidth - gageWidth) / 2),
+                               point2=(gripLength + space + gageLength + space, 0.0), vector=(150, 10.0))
 
         s.RadialDimension(curve=g[12], textPoint=(50.0, 27.5), radius=radius)
         s.RadialDimension(curve=g[13], textPoint=(50.0, -7.5), radius=radius)
@@ -51,6 +65,8 @@ class AbacusCommands():
         s.delete(objectList=(g[8],))
         s.delete(objectList=(g[10],))
 
+        p = mdb.models['Model-1'].Part(name='Specimen', dimensionality=TWO_D_PLANAR,
+                                       type=DEFORMABLE_BODY)
 
         p = mdb.models['Model-1'].parts['Specimen']
         p.BaseShell(sketch=s)
@@ -137,7 +153,6 @@ class AbacusCommands():
                                              distributionType=UNIFORM, fieldName='', localCsys=None)
 
     def mesh2D(self):
-
         p = mdb.models['Model-1'].parts['Specimen']
         p.seedPart(size=10.0, deviationFactor=0.1, minSizeFactor=0.1)
 
@@ -155,7 +170,8 @@ class AbacusCommands():
                 scratch='', resultsFormat=ODB)
 
     # Axis
-    def createSpecimenAxis(self, gripLength, gripWidth, gageLength, gageWidth, radius):
+    def createSpecimenAxis(self, overallLength, gripLength, gripWidth, gageLength, gageWidth, radius):
+        space = (overallLength - 2 * gripLength - gageLength) / 2
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=500.0)
         g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
@@ -171,29 +187,31 @@ class AbacusCommands():
         s.VerticalConstraint(entity=g[4], addUndoState=False)
         s.PerpendicularConstraint(entity1=g[3], entity2=g[4], addUndoState=False)
 
-        s.Line(point1=(gageWidth / 2, gripLength + 10), point2=(gageWidth / 2, gripLength + 10 + gageLength))
+        s.Line(point1=(gageWidth / 2, gripLength + space), point2=(gageWidth / 2, gripLength + space + gageLength))
         s.VerticalConstraint(entity=g[5], addUndoState=False)
-        s.Line(point1=(gripWidth / 2, gripLength + 10 + gageLength + 10),
-               point2=(gripWidth / 2, gripLength + 10 + gageLength + 10 + gripLength))
+        s.Line(point1=(gripWidth / 2, gripLength + space + gageLength + space),
+               point2=(gripWidth / 2, gripLength + space + gageLength + space + gripLength))
         s.VerticalConstraint(entity=g[6], addUndoState=False)
-        s.Line(point1=(gripWidth / 2, gripLength + 10 + gageLength + 10 + gripLength),
-               point2=(0.0, gripLength + 10 + gageLength + 10 + gripLength))
+        s.Line(point1=(gripWidth / 2, gripLength + space + gageLength + space + gripLength),
+               point2=(0.0, gripLength + space + gageLength + space + gripLength))
         s.HorizontalConstraint(entity=g[7], addUndoState=False)
         s.PerpendicularConstraint(entity1=g[6], entity2=g[7], addUndoState=False)
         s.CoincidentConstraint(entity1=v[7], entity2=g[2], addUndoState=False)
 
-        s.Line(point1=(0.0, gripLength + 10 + gageLength + 10 + gripLength), point2=(0.0, 0.0))
+        s.Line(point1=(0.0, gripLength + space + gageLength + space + gripLength), point2=(0.0, 0.0))
         s.VerticalConstraint(entity=g[8], addUndoState=False)
         s.PerpendicularConstraint(entity1=g[7], entity2=g[8], addUndoState=False)
 
-        s.ArcByStartEndTangent(point1=(gageWidth / 2, gripLength + 10 + gageLength),
-                               point2=(gripWidth / 2, gripLength + 10 + gageLength + 10), entity=g[5])
-        s.ArcByStartEndTangent(point1=(gageWidth / 2, gripLength + 10),
+        s.ArcByStartEndTangent(point1=(gageWidth / 2, gripLength + space + gageLength),
+                               point2=(gripWidth / 2, gripLength + space + gageLength + space), entity=g[5])
+        s.ArcByStartEndTangent(point1=(gageWidth / 2, gripLength + space),
                                point2=(gripWidth / 2, gripLength), entity=g[5])
 
         s.RadialDimension(curve=g[10], textPoint=(17.5, 105.0), radius=radius)
         s.RadialDimension(curve=g[9], textPoint=(17.5, 30.0), radius=radius)
 
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=AXISYMMETRIC,
+                                       type=DEFORMABLE_BODY)
         p = mdb.models['Model-1'].parts['Part-1']
         p.BaseShell(sketch=s)
         s.unsetPrimaryObject()
@@ -274,30 +292,31 @@ class AbacusCommands():
                 modelPrint=OFF, contactPrint=OFF, historyPrint=OFF, userSubroutine='',
                 scratch='', resultsFormat=ODB)
 
-    def createSpecimen3D(self, gripLength, gripWidth, gageLength, gageWidth, radius, depth):
+    def createSpecimen3D(self, overallLength, gripLength, gripWidth, gageLength, gageWidth, radius, depth):
+        space = (overallLength - 2 * gripLength - gageLength) / 2
         s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                      sheetSize=500.0)
         g, v, d, c = s1.geometry, s1.vertices, s1.dimensions, s1.constraints
         s1.setPrimaryObject(option=STANDALONE)
         s1.rectangle(point1=(0.0, gripWidth), point2=(gripLength, 0.0))  # left grip
-        s1.rectangle(point1=(gripLength + 10.0, gripWidth - (gripWidth - gageWidth) / 2),
-                     point2=(gripLength + 10.0 + gageLength, (gripWidth - gageWidth) / 2))  # gage
-        s1.rectangle(point1=(gripLength + 10.0 + gageLength + 10, gripWidth),
-                     point2=(gripLength + 10.0 + gageLength + 10 + gripLength, 0.0))
+        s1.rectangle(point1=(gripLength + space, gripWidth - (gripWidth - gageWidth) / 2),
+                     point2=(gripLength + space + gageLength, (gripWidth - gageWidth) / 2))  # gage
+        s1.rectangle(point1=(gripLength + space + gageLength + space, gripWidth),
+                     point2=(gripLength + space + gageLength + space + gripLength, 0.0))
 
         s1.delete(objectList=(g[6], g[8], g[10], g[4]))
 
-        s1.ArcByStartEndTangent(point1=(gripLength + 10.0, gripWidth - (gripWidth - gageWidth) / 2),
+        s1.ArcByStartEndTangent(point1=(gripLength + space, gripWidth - (gripWidth - gageWidth) / 2),
                                 point2=(gripLength, gripWidth), vector=(-150.0, 10.0))
 
-        s1.ArcByStartEndTangent(point1=(gripLength + 10.0, (gripWidth - gageWidth) / 2),
+        s1.ArcByStartEndTangent(point1=(gripLength + space, (gripWidth - gageWidth) / 2),
                                 point2=(gripLength, 0.0), vector=(-150, 10.0))
 
-        s1.ArcByStartEndTangent(point1=(gripLength + 10.0 + gageLength, gripWidth - (gripWidth - gageWidth) / 2),
-                                point2=(gripLength + 10.0 + gageLength + 10, gripWidth), vector=(150, -1.0))
+        s1.ArcByStartEndTangent(point1=(gripLength + space + gageLength, gripWidth - (gripWidth - gageWidth) / 2),
+                                point2=(gripLength + space + gageLength + space, gripWidth), vector=(150, -1.0))
 
-        s1.ArcByStartEndTangent(point1=(gripLength + 10.0 + gageLength, (gripWidth - gageWidth) / 2),
-                                point2=(gripLength + 10.0 + gageLength + 10, 0.0), vector=(150, 10.0))
+        s1.ArcByStartEndTangent(point1=(gripLength + space + gageLength, (gripWidth - gageWidth) / 2),
+                                point2=(gripLength + space + gageLength + space, 0.0), vector=(150, 10.0))
 
         s1.RadialDimension(curve=g[12], textPoint=(50.0, 27.5), radius=radius)
         s1.RadialDimension(curve=g[13], textPoint=(50.0, -7.5), radius=radius)
@@ -345,7 +364,16 @@ class AbacusCommands():
         p = mdb.models['Model-1'].parts['Part-1']
         a.Instance(name='Part-1-1', part=p, dependent=ON)
 
-        mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial')
+        # step
+
+        # default
+        # mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial')
+
+        mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial',
+                                         timePeriod=2.0, maxNumInc=1000, stabilizationMethod=NONE,
+                                         continueDampingFactors=False, adaptiveDampingRatio=None,
+                                         initialInc=1.0, minInc=2.1e-05, maxInc=2.0, matrixSolver=ITERATIVE,
+                                         matrixStorage=SOLVER_DEFAULT, solutionTechnique=FULL_NEWTON)
 
         a = mdb.models['Model-1'].rootAssembly
         f1 = a.instances['Part-1-1'].faces
@@ -381,7 +409,8 @@ class AbacusCommands():
                 modelPrint=OFF, contactPrint=OFF, historyPrint=OFF, userSubroutine='',
                 scratch='', resultsFormat=ODB)
 
-    def createSpecimenCylinder(self, gripLength, gripWidth, gageLength, gageWidth, radius):
+    def createSpecimenCylinder(self, overallLength, gripLength, gripWidth, gageLength, gageWidth, radius):
+        space = (overallLength - 2 * gripLength - gageLength) / 2
         s1 = mdb.models['Model-1'].ConstrainedSketch(name='__sweep__', sheetSize=200.0)
         g, v, d, c = s1.geometry, s1.vertices, s1.dimensions, s1.constraints
         s1.setPrimaryObject(option=STANDALONE)
@@ -398,17 +427,17 @@ class AbacusCommands():
         s.ConstructionLine(point1=(-100.0, 0.0), point2=(100.0, 0.0))
         s.ConstructionLine(point1=(0.0, -100.0), point2=(0.0, 100.0))
 
-        s.Line(point1=(10.0, 0.0), point2=(10.0, gageLength / 2 + 10 + gripLength))
+        s.Line(point1=(10.0, 0.0), point2=(10.0, gageLength / 2 + space + gripLength))
         s.VerticalConstraint(entity=g1[4], addUndoState=False)
         s.PerpendicularConstraint(entity1=g1[2], entity2=g1[4], addUndoState=False)
         s.CoincidentConstraint(entity1=v1[0], entity2=g1[2], addUndoState=False)
 
-        s.Line(point1=(10.0, gageLength / 2 + 10 + gripLength),
-               point2=(10 + gripWidth / 2, gageLength / 2 + 10 + gripLength))
+        s.Line(point1=(10.0, gageLength / 2 + space + gripLength),
+               point2=(10 + gripWidth / 2, gageLength / 2 + space + gripLength))
         s.HorizontalConstraint(entity=g1[5], addUndoState=False)
         s.PerpendicularConstraint(entity1=g1[4], entity2=g1[5], addUndoState=False)
-        s.Line(point1=(10 + gripWidth / 2, gageLength / 2 + 10 + gripLength),
-               point2=(10 + gripWidth / 2, gageLength / 2 + 10))
+        s.Line(point1=(10 + gripWidth / 2, gageLength / 2 + space + gripLength),
+               point2=(10 + gripWidth / 2, gageLength / 2 + space))
         s.VerticalConstraint(entity=g1[6], addUndoState=False)
         s.PerpendicularConstraint(entity1=g1[5], entity2=g1[6], addUndoState=False)
 
@@ -420,7 +449,7 @@ class AbacusCommands():
         s.VerticalConstraint(entity=g1[8], addUndoState=False)
         s.PerpendicularConstraint(entity1=g1[7], entity2=g1[8], addUndoState=False)
         s.ArcByStartEndTangent(point1=(10 + gageWidth / 2, gageLength / 2),
-                               point2=(10 + gripWidth / 2, gageLength / 2 + 10), entity=g1[8])
+                               point2=(10 + gripWidth / 2, gageLength / 2 + space), entity=g1[8])
 
         s.copyMirror(mirrorLine=g1[2], objectList=(g1[2], g1[4], g1[5], g1[6], g1[7],
                                                    g1[8], g1[9]))
@@ -482,7 +511,24 @@ class AbacusCommands():
                                              localCsys=None)
 
     def meshCylinder(self):
-        pass
+        import mesh
+        p = mdb.models['Model-1'].parts['Part-1']
+        c = p.cells
+        pickedRegions = c.getSequenceFromMask(mask=('[#1 ]',), )
+        p.setMeshControls(regions=pickedRegions, elemShape=TET, technique=FREE)
+        elemType1 = mesh.ElemType(elemCode=C3D20R)
+        elemType2 = mesh.ElemType(elemCode=C3D15)
+        elemType3 = mesh.ElemType(elemCode=C3D10)
+        p = mdb.models['Model-1'].parts['Part-1']
+        c = p.cells
+        cells = c.getSequenceFromMask(mask=('[#1 ]',), )
+        pickedRegions = (cells,)
+        p.setElementType(regions=pickedRegions, elemTypes=(elemType1, elemType2,
+                                                           elemType3))
+        p = mdb.models['Model-1'].parts['Part-1']
+        p.seedPart(size=4.0, deviationFactor=0.1, minSizeFactor=0.1)
+        p = mdb.models['Model-1'].parts['Part-1']
+        p.generateMesh()
 
     def jobCylinder(self):
         mdb.Job(name='Job-1', model='Model-1', description='', type=ANALYSIS,

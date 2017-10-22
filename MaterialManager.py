@@ -1,7 +1,8 @@
 from abaqus import *
 from abaqusConstants import *
 
-class MaterialManager():
+
+class MaterialManager:
     def __init__(self):
         pass
 
