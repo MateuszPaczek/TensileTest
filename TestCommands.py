@@ -1,7 +1,7 @@
 
 
 class TestCommands:
-    def createSpecimen2D(self,  overallLength,gripLength, gripWidth, gageLength, gageWidth, radius, thickness):
+    def createSpecimen2D(self,  overallLength, gripLength, gripWidth, gageLength, gageWidth, radius, thickness):
         pass
 
     def assemblyStep2D(self, displacement):

@@ -2,8 +2,10 @@ from Tkinter import *
 import ttk
 
 import AbaqusCommands
-# import TestCommands
+import TestCommands
 
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def TensileFunction():
     class GuiApplication:
@@ -28,12 +30,24 @@ def TensileFunction():
             self.vfaz = (self.tab3D.register(self.specimen_dimension_validate),
                          '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
+
             self.upperFrame2D = ttk.Frame(self.tab2D)
-            self.middleFrame2D = ttk.Frame(self.tab2D)
+            self.imageFrame2D = ttk.Frame(self.tab2D)
 
-            self.upperFrame2D.grid(row=0, column=0)
-            self.middleFrame2D.grid(row=1, column=0)
+            self.upperFrame2D.grid(row=1, column=0)
+            self.imageFrame2D.grid(row=0, column=0)
 
+            self.specimenImmage = PhotoImage(file=dir_path + "\\" + "tensile_specimen.gif")
+            self.specimenImageLabel2D = ttk.Label(self.imageFrame2D, image=self.specimenImmage)
+            self.specimenImageLabel2D.image = self.specimenImmage
+            self.specimenImageLabel2D.grid()
+
+            self.specimens2D = ( 'Test', 'PN EN ISO 6892-1 2009')
+            self.specimenComboBox2D = ttk.Combobox(self.imageFrame2D, values=self.specimens2D,
+                                                   textvariable=self.specimens2D)
+            self.specimenComboBox2D.current(newindex=0)
+            self.specimenComboBox2D.bind("<<ComboboxSelected>>", self.update_gui_on_selected_specimen2D)
+            self.specimenComboBox2D.grid()
 
             self.overallLength2D = StringVar()
             self.gripLength2D = StringVar()
@@ -45,31 +59,31 @@ def TensileFunction():
             self.displacement2D = StringVar()
             self.displacement2D.set("10.0")
 
-            self.overallLength2DLabel = ttk.Label(self.upperFrame2D, text="Overall length")
+            self.overallLength2DLabel = ttk.Label(self.upperFrame2D, text="L0 - Overall length")
             self.overallLength2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
                                                textvariable=self.overallLength2D)
 
-            self.gripLength2DLabel = ttk.Label(self.upperFrame2D, text="Grip length")
+            self.gripLength2DLabel = ttk.Label(self.upperFrame2D, text="D - Grip tab length")
             self.gripLength2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
                                                textvariable=self.gripLength2D)
 
-            self.gripWidth2DLabel = ttk.Label(self.upperFrame2D, text="Grip width")
+            self.gripWidth2DLabel = ttk.Label(self.upperFrame2D, text="W0 - Overall width")
             self.gripWidth2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
                                               textvariable=self.gripWidth2D)
 
-            self.gageLength2DLabel = ttk.Label(self.upperFrame2D, text="Gage length")
+            self.gageLength2DLabel = ttk.Label(self.upperFrame2D, text="L - Length of narrow section")
             self.gageLength2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
                                                textvariable=self.gageLength2D)
 
-            self.gageWidth2DLabel = ttk.Label(self.upperFrame2D, text="Gage width")
+            self.gageWidth2DLabel = ttk.Label(self.upperFrame2D, text="Wc - Width of narrow section")
             self.gageWidth2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
                                               textvariable=self.gageWidth2D)
 
-            self.radius2DLabel = ttk.Label(self.upperFrame2D, text="Radius")
+            self.radius2DLabel = ttk.Label(self.upperFrame2D, text="R - Radius")
             self.radius2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
                                            textvariable=self.radius2D)
 
-            self.thickness2DLabel = ttk.Label(self.upperFrame2D, text="Thickness")
+            self.thickness2DLabel = ttk.Label(self.upperFrame2D, text="T - Thickness")
             self.thickness2DEntry = ttk.Entry(self.upperFrame2D, validate='key', validatecommand=self.vfaz,
                                               textvariable=self.thickness2D)
 
@@ -91,25 +105,28 @@ def TensileFunction():
             self.radius2DEntry.grid(row=5, column=1)
             self.thickness2DLabel.grid(row=6, column=0)
             self.thickness2DEntry.grid(row=6, column=1)
-            self.displacement2DLabel.grid(row=0, column=3)
-            self.displacement2DEntry.grid(row=0, column=4)
+            self.displacement2DLabel.grid(row=7, column=0)
+            self.displacement2DEntry.grid(row=7, column=1)
 
-            self.buttonDone = Button(self.upperFrame2D, text="Go", command=self.done2D)
-            self.buttonExample = Button(self.upperFrame2D, text="Create example", command=self.example2D)
+            self.buttonDone = Button(self.upperFrame2D, text="Create", command=self.done2D)
+            self.buttonExample = Button(self.upperFrame2D, text="Create example ISO 6892-1", command=self.example2D)
             self.buttonDone.grid()
             self.buttonExample.grid()
-
-
-
-
 
             # Axisimmetric
 
             self.upperFrameAxis = ttk.Frame(self.tabAxis)
-            self.middleFrameAxis = ttk.Frame(self.tabAxis)
+            self.imageFrameAxis = ttk.Frame(self.tabAxis)
 
-            self.upperFrameAxis.grid(row=0, column=0)
-            self.middleFrameAxis.grid(row=1, column=0)
+            self.upperFrameAxis.grid(row=1, column=0)
+            self.imageFrameAxis.grid(row=0, column=0)
+
+            self.specimensAxis = ('Test', 'PN EN ISO 6892-1 2009')
+            self.specimenComboBoxAxis = ttk.Combobox(self.imageFrameAxis, values=self.specimensAxis,
+                                                   textvariable=self.specimensAxis)
+            self.specimenComboBoxAxis.current(newindex=0)
+            self.specimenComboBoxAxis.bind("<<ComboboxSelected>>", self.update_gui_on_selected_specimenAxis)
+            self.specimenComboBoxAxis.grid()
 
             self.overallLengthAxis = StringVar()
             self.gripLengthAxis = StringVar()
@@ -159,10 +176,10 @@ def TensileFunction():
             self.gageWidthAxisEntry.grid(row=4, column=1)
             self.radiusAxisLabel.grid(row=5, column=0)
             self.radiusAxisEntry.grid(row=5, column=1)
-            self.displacementAxisLabel.grid(row=0, column=3)
-            self.displacementAxisEntry.grid(row=0, column=4)
+            self.displacementAxisLabel.grid(row=6, column=0)
+            self.displacementAxisEntry.grid(row=6, column=1)
 
-            self.buttonDone = Button(self.upperFrameAxis, text="Go", command=self.doneAxis)
+            self.buttonDone = Button(self.upperFrameAxis, text="Create", command=self.doneAxis)
             self.buttonExample = Button(self.upperFrameAxis, text="Create example", command=self.exampleAxis)
             self.buttonDone.grid()
             self.buttonExample.grid()
@@ -170,10 +187,21 @@ def TensileFunction():
             # 3D
 
             self.upperFrame3D = ttk.Frame(self.tab3D)
-            self.middleFrame3D = ttk.Frame(self.tab3D)
+            self.imageFrame3D = ttk.Frame(self.tab3D)
 
-            self.upperFrame3D.grid(row=0, column=0)
-            self.middleFrame3D.grid(row=1, column=0)
+            self.specimenImageLabel3D = ttk.Label(self.imageFrame3D, image=self.specimenImmage)
+            self.specimenImageLabel3D.image = self.specimenImmage
+            self.specimenImageLabel3D.grid()
+
+            self.imageFrame3D.grid(row=0, column=0)
+            self.upperFrame3D.grid(row=1, column=0)
+
+            self.specimens3D = ('Test', 'PN EN ISO 6892-1 2009')
+            self.specimenComboBox3D = ttk.Combobox(self.imageFrame3D, values=self.specimens3D,
+                                                   textvariable=self.specimens3D)
+            self.specimenComboBox3D.current(newindex=0)
+            self.specimenComboBox3D.bind("<<ComboboxSelected>>", self.update_gui_on_selected_specimen3D)
+            self.specimenComboBox3D.grid()
 
             self.overallLength3D = StringVar()
             self.gripLength3D = StringVar()
@@ -186,31 +214,31 @@ def TensileFunction():
             # self.displacement3D.set("10.0")
 
 
-            self.overallLength3DLabel = ttk.Label(self.upperFrame3D, text="Overall length")
+            self.overallLength3DLabel = ttk.Label(self.upperFrame3D, text="L0 - Overall length")
             self.overallLength3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
                                                   textvariable=self.overallLength3D)
 
-            self.gripLength3DLabel = ttk.Label(self.upperFrame3D, text="Grip length")
+            self.gripLength3DLabel = ttk.Label(self.upperFrame3D, text="D - Grip tab length")
             self.gripLength3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
                                                textvariable=self.gripLength3D)
 
-            self.gripWidth3DLabel = ttk.Label(self.upperFrame3D, text="Grip width")
+            self.gripWidth3DLabel = ttk.Label(self.upperFrame3D, text="W0 - Overall width")
             self.gripWidth3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
                                               textvariable=self.gripWidth3D)
 
-            self.gageLength3DLabel = ttk.Label(self.upperFrame3D, text="Gage length")
+            self.gageLength3DLabel = ttk.Label(self.upperFrame3D, text="L - Length of narrow section")
             self.gageLength3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
                                                textvariable=self.gageLength3D)
 
-            self.gageWidth3DLabel = ttk.Label(self.upperFrame3D, text="Gage width")
+            self.gageWidth3DLabel = ttk.Label(self.upperFrame3D, text="Wc - width of narrow section")
             self.gageWidth3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
                                               textvariable=self.gageWidth3D)
 
-            self.radius3DLabel = ttk.Label(self.upperFrame3D, text="Radius")
+            self.radius3DLabel = ttk.Label(self.upperFrame3D, text="R - Radius")
             self.radius3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
                                            textvariable=self.radius3D)
 
-            self.depth3DLabel = ttk.Label(self.upperFrame3D, text="Depth")
+            self.depth3DLabel = ttk.Label(self.upperFrame3D, text="T- Thickness")
             self.depth3DEntry = ttk.Entry(self.upperFrame3D, validate='key', validatecommand=self.vfaz,
                                           textvariable=self.depth3D)
 
@@ -233,10 +261,10 @@ def TensileFunction():
             self.depth3DLabel.grid(row=6, column=0)
             self.depth3DEntry.grid(row=6, column=1)
 
-            self.displacement3DLabel.grid(row=0, column=3)
-            self.displacement3DEntry.grid(row=0, column=4)
+            self.displacement3DLabel.grid(row=7, column=0)
+            self.displacement3DEntry.grid(row=7, column=1)
 
-            self.buttonDone = Button(self.upperFrame3D, text="Go", command=self.done3D)
+            self.buttonDone = Button(self.upperFrame3D, text="Create", command=self.done3D)
             self.buttonExample = Button(self.upperFrame3D, text="Create example", command=self.example3D)
             self.buttonDone.grid()
             self.buttonExample.grid()
@@ -244,10 +272,17 @@ def TensileFunction():
             # cylinder
 
             self.upperFrameCylinder = ttk.Frame(self.tabCylinder)
-            self.middleFrameCylinder = ttk.Frame(self.tabCylinder)
+            self.imageFrameCylinder = ttk.Frame(self.tabCylinder)
 
-            self.upperFrameCylinder.grid(row=0, column=0)
-            self.middleFrameCylinder.grid(row=1, column=0)
+            self.upperFrameCylinder.grid(row=1, column=0)
+            self.imageFrameCylinder.grid(row=0, column=0)
+
+            self.specimensCylinder = ('Test', 'PN EN ISO 6892-1 2009')
+            self.specimenComboBoxCylinder = ttk.Combobox(self.imageFrameCylinder, values=self.specimensCylinder,
+                                                   textvariable=self.specimensCylinder)
+            self.specimenComboBoxCylinder.current(newindex=0)
+            self.specimenComboBoxCylinder.bind("<<ComboboxSelected>>", self.update_gui_on_selected_specimenCylinder)
+            self.specimenComboBoxCylinder.grid()
 
             self.overallLengthCylinder = StringVar()
             self.gripLengthCylinder = StringVar()
@@ -299,10 +334,10 @@ def TensileFunction():
             self.gageWidthCylinderEntry.grid(row=4, column=1)
             self.radiusCylinderLabel.grid(row=5, column=0)
             self.radiusCylinderEntry.grid(row=5, column=1)
-            self.displacementCylinderLabel.grid(row=0, column=3)
-            self.displacementCylinderEntry.grid(row=0, column=4)
+            self.displacementCylinderLabel.grid(row=6, column=0)
+            self.displacementCylinderEntry.grid(row=6, column=1)
 
-            self.buttonDone = Button(self.upperFrameCylinder, text="Go", command=self.doneCylinder)
+            self.buttonDone = Button(self.upperFrameCylinder, text="Create", command=self.doneCylinder)
             self.buttonExample = Button(self.upperFrameCylinder, text="Create example", command=self.exampleCylinder)
             self.buttonDone.grid()
             self.buttonExample.grid()
@@ -359,7 +394,7 @@ def TensileFunction():
             self.abaqus.jobCylinder()
 
         def example2D(self):
-            self.abaqus.createSpecimen2D(175.0, 40.0, 20.0, 75.0, 10.0, 12.5, 2)
+            self.abaqus.createSpecimen2D(167.5, 40, 20.0, 75.0, 12.5, 12.5, 2)
             self.abaqus.assemblyStep2D(10.0)
             self.abaqus.mesh2D()
             self.abaqus.job2D()
@@ -381,6 +416,44 @@ def TensileFunction():
             self.abaqus.assemblyStepCylinder(10.0)
             self.abaqus.meshCylinder()
             self.abaqus.jobCylinder()
+
+        def update_gui_on_selected_specimen2D(self, event):
+            if self.specimenComboBox2D.get() == 'PN EN ISO 6892-1 2009':
+                self.overallLength2D.set("167.5")
+                self.gripLength2D.set("40")
+                self.gripWidth2D.set("20")
+                self.gageLength2D.set("75")
+                self.gageWidth2D.set("12.5")
+                self.radius2D.set("7.29")
+                self.thickness2D.set("2")
+
+        def update_gui_on_selected_specimen3D(self, event):
+            if self.specimenComboBox3D.get() == 'PN EN ISO 6892-1 2009':
+                self.overallLength3D.set("167.5")
+                self.gripLength3D.set("40")
+                self.gripWidth3D.set("20")
+                self.gageLength3D.set("75")
+                self.gageWidth3D.set("12.5")
+                self.radius3D.set("7.29")
+                self.depth3D.set("2")
+
+        def update_gui_on_selected_specimenCylinder(self, event):
+            if self.specimenComboBoxCylinder.get() == 'PN EN ISO 6892-1 2009':
+                self.overallLengthCylinder.set("212.5")
+                self.gripLengthCylinder.set("40")
+                self.gripWidthCylinder.set("30")
+                self.gageLengthCylinder.set("120")
+                self.gageWidthCylinder.set("20")
+                self.radiusCylinder.set("6.41")
+
+        def update_gui_on_selected_specimenAxis(self, event):
+            if self.specimenComboBoxAxis.get() == 'PN EN ISO 6892-1 2009':
+                self.overallLengthAxis.set("212.5")
+                self.gripLengthAxis.set("40")
+                self.gripWidthAxis.set("30")
+                self.gageLengthAxis.set("120")
+                self.gageWidthAxis.set("20")
+                self.radiusAxis.set("6.41")
 
     app = GuiApplication()
 
