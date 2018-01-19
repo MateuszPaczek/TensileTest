@@ -52,11 +52,11 @@ class AbacusCommands:
 
         s.ArcByStartEndTangent(point1=(gripLength + space + gageLength, (gripWidth - gageWidth) / 2),
                                point2=(gripLength + space + gageLength + space, 0.0), vector=(150, 10.0))
-
-        s.RadialDimension(curve=g[12], textPoint=(50.0, 27.5), radius=radius)
-        s.RadialDimension(curve=g[13], textPoint=(50.0, -7.5), radius=radius)
-        s.RadialDimension(curve=g[14], textPoint=(125.0, -7.5), radius=radius)
-        s.RadialDimension(curve=g[15], textPoint=(125.0, 27.5), radius=radius)
+        if radius != 0:
+            s.RadialDimension(curve=g[12], textPoint=(50.0, 27.5), radius=radius)
+            s.RadialDimension(curve=g[13], textPoint=(50.0, -7.5), radius=radius)
+            s.RadialDimension(curve=g[14], textPoint=(125.0, -7.5), radius=radius)
+            s.RadialDimension(curve=g[15], textPoint=(125.0, 27.5), radius=radius)
 
         # s.ArcByStartEndTangent(point1=(gripLength+10.0, 15.0), point2=(gripLength, gripWidth), entity=g[8])
 
@@ -206,9 +206,9 @@ class AbacusCommands:
                                point2=(gripWidth / 2, gripLength + space + gageLength + space), entity=g[5])
         s.ArcByStartEndTangent(point1=(gageWidth / 2, gripLength + space),
                                point2=(gripWidth / 2, gripLength), entity=g[5])
-
-        s.RadialDimension(curve=g[10], textPoint=(17.5, 105.0), radius=radius)
-        s.RadialDimension(curve=g[9], textPoint=(17.5, 30.0), radius=radius)
+        if radius != 0:
+            s.RadialDimension(curve=g[10], textPoint=(17.5, 105.0), radius=radius)
+            s.RadialDimension(curve=g[9], textPoint=(17.5, 30.0), radius=radius)
 
         p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=AXISYMMETRIC,
                                        type=DEFORMABLE_BODY)
@@ -293,6 +293,7 @@ class AbacusCommands:
                 scratch='', resultsFormat=ODB)
 
     def createSpecimen3D(self, overallLength, gripLength, gripWidth, gageLength, gageWidth, radius, depth):
+
         space = (overallLength - 2 * gripLength - gageLength) / 2
         s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                      sheetSize=500.0)
@@ -317,11 +318,11 @@ class AbacusCommands:
 
         s1.ArcByStartEndTangent(point1=(gripLength + space + gageLength, (gripWidth - gageWidth) / 2),
                                 point2=(gripLength + space + gageLength + space, 0.0), vector=(150, 10.0))
-
-        s1.RadialDimension(curve=g[12], textPoint=(50.0, 27.5), radius=radius)
-        s1.RadialDimension(curve=g[13], textPoint=(50.0, -7.5), radius=radius)
-        s1.RadialDimension(curve=g[14], textPoint=(125.0, -7.5), radius=radius)
-        s1.RadialDimension(curve=g[15], textPoint=(125.0, 27.5), radius=radius)
+        if radius != 0:
+            s1.RadialDimension(curve=g[12], textPoint=(50.0, 27.5), radius=radius)
+            s1.RadialDimension(curve=g[13], textPoint=(50.0, -7.5), radius=radius)
+            s1.RadialDimension(curve=g[14], textPoint=(125.0, -7.5), radius=radius)
+            s1.RadialDimension(curve=g[15], textPoint=(125.0, 27.5), radius=radius)
 
         p1 = mdb.models['Model-1'].Part(name='Part-1', dimensionality=THREE_D,
                                         type=DEFORMABLE_BODY)
